@@ -3,17 +3,15 @@ QT          += network
 
 CONFIG += c++11
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH = $$PWD
 
 SOURCES += \
-        weatherapi.cpp
+        $$PWD/weatherapi.cpp
 
 HEADERS += \
-        weatherapi.h
+        $$PWD/weatherapi.h
 
 DISTFILES += \
-	README.md
-	LICENSE
-
+    README.md
 
 
