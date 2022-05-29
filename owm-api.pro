@@ -16,5 +16,7 @@ HEADERS += \
         weatherapi.h
 
 DISTFILES += \
-        NOTES.md
+        README.md \
+        NOTES.md \
+        LICENSE
 
