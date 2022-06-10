@@ -104,7 +104,8 @@ QByteArray WeatherAPI::getWeatherData( QString city, QString country_code )
 
 /*
  *      Get whole data in one call (incl. forecast) with Latitude & Longitude
- *      "https://api.openweathermap.org/data/2.5/onecall?lat=50.13489&lon=8.45121&appid=<api-key>"
+ *      https://openweathermap.org/api/one-call-api
+ *      https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
  */
 QString WeatherAPI::getOneCallData( QString latitude, QString longitude )
 {
@@ -131,13 +132,47 @@ QString WeatherAPI::getOneCallData( QString latitude, QString longitude )
     return data;
 }
 
+// ==============================================
+// DEBUG PRINTS
+// ==============================================
+void  WeatherAPI::printJsonDataWeather( QString city, QString country_code )
+{
+    qDebug() << "Complete JSON data (weather):" << getWeatherData( city, country_code );
+}
+
+void WeatherAPI::printJsonDataOneCall( QString latitude, QString longitude )
+{
+    qDebug() << "Complete JSON data (OneCall):" << getOneCallData( latitude, longitude );
+}
+
 
 // ==============================================
 // PARSE JSON
 // ==============================================
-double WeatherAPI::analyzeData( QByteArray data, QString rootkey, QString subkey )
+auto WeatherAPI::analyzeData1st( QByteArray data, QString rootkey )
 {
-    double value = 0;
+    auto value = 0;
+
+    // json
+    QJsonDocument jsonData = QJsonDocument::fromJson ( data );
+    QJsonObject root = jsonData.object();
+    QJsonValue subVal = root.value( rootkey );
+    QJsonObject subObj = subVal.toObject();
+
+    // value
+    if ( root.contains( rootkey ) && subObj[ rootkey ].isDouble() )
+        value = subObj[ rootkey ].toDouble();
+    else
+        qDebug() << "No valid data!";
+
+    return value;
+}
+
+auto WeatherAPI::analyzeData( QByteArray data, QString rootkey, QString subkey )
+{
+    auto value = 0;
+    QString str = "";
+
 
     // json
     QJsonDocument jsonData = QJsonDocument::fromJson ( data );
@@ -148,6 +183,11 @@ double WeatherAPI::analyzeData( QByteArray data, QString rootkey, QString subkey
     // value
     if ( subObj.contains( subkey ) && subObj[ subkey ].isDouble() )
         value = subObj[ subkey ].toDouble();
+    else if ( subObj.contains( subkey) && subObj[ subkey ].isObject() )
+    {
+        str = subObj[ subkey ].toString();
+        qDebug() << "String" << str;
+    }
     else
         qDebug() << "No valid data!";
 
@@ -157,6 +197,14 @@ double WeatherAPI::analyzeData( QByteArray data, QString rootkey, QString subkey
 // ==============================================
 // GET SINGLE VALUES
 // ==============================================
+double WeatherAPI::getCoordLong( QString city, QString country_code )
+{
+    QByteArray data = getWeatherData( city, country_code );
+    double coord_long = analyzeData( data, "coord", "lon" );
+    qDebug() << "Längengrad: " << coord_long << "°";
+    return coord_long;
+}
+
 double WeatherAPI::getTemperature(QString city, QString country_code)
 {
     QByteArray data = getWeatherData( city, country_code );

@@ -18,10 +18,19 @@ public:
     QByteArray getWeatherData( QString city, QString country_code );
     QString getOneCallData( QString latitude, QString longitude );
 
+    // DebugPrints
+    void printJsonDataWeather( QString city, QString country_code );
+    void printJsonDataOneCall( QString latitude, QString longitude );
+
     // analyze JSON
-    double analyzeData( QByteArray data, QString rootkey, QString subkey );
+    auto analyzeData1st( QByteArray data, QString rootkey );
+    auto analyzeData( QByteArray data, QString rootkey, QString subkey );
+
 
     // single data values
+    double getCoordLong( QString city, QString country_code );
+    double getCoordLat( QString city, QString country_code );
+
     double getTemperature( QString city, QString country_code );
     double getTempMax( QString city, QString country_code );
     double getTempMin( QString city, QString country_code );

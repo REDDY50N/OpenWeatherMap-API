@@ -33,5 +33,8 @@ int main(int argc, char *argv[])
     w.getSunriseTime( city, country_code );
     w.getPressure( city, country_code );
 
+    w.getCoordLong( city, country_code );
+    w.printJsonDataOneCall("50.05", "8.69");
+
     return app.exec();
 }
