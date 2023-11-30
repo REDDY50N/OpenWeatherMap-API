@@ -5,6 +5,13 @@ temp/
 TEMP/
 NOTES.md
 
+cmake-build-debug
+cmake-build-release
+cmake-*
+build-*
+.idea/
+build/
+
 # Qt
 *.pro.user
 *.autosave

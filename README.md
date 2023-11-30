@@ -14,3 +14,7 @@ add your api key to your environment vars .i.e. in ~/.profile
 ## Version
 
 change `VERSION` file
+
+## Dependencies
+Qt 5.15.15
+`<sudo apt install mesa-common-dev libglu1-mesa-dev`
