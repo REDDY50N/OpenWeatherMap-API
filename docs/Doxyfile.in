@@ -1,0 +1,61 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
+PROJECT_NUMBER         = @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+PROJECT_BRIEF          =
+PROJECT_LOGO           =
+
+# Verzeichnis für die Dokumentationsausgabe
+OUTPUT_DIRECTORY        = ./doxygen
+
+# Quellcode-Verzeichnis
+OPTIMIZE_OUTPUT_FOR_C  = YES
+INPUT                  = @CMAKE_SOURCE_DIR@/src
+
+# Dateiformate für die Generierung (hier nur C++)
+FILE_PATTERNS           = *.cpp *.h
+
+# Rekursive Suche in Unterverzeichnissen
+RECURSIVE              = YES
+
+# Zeigt private Klassen- und Mitgliedsfunktionen an
+EXTRACT_PRIVATE        = YES
+
+# Generiert HTML-Dokumentation
+GENERATE_HTML          = YES
+
+# Erzeugt eine Latex pdf Dokumentation
+GENERATE_LATEX         = NO
+LATEX_CMD_NAME         = pdflatex
+
+# Zeigt Warnungen bei fehlenden Dokumentationseinträgen an
+WARN_IF_UNDOCUMENTED   = NO
+
+# Erzeugt eine Zusammenfassungsseite für Namensräume
+GENERATE_TREEVIEW      = YES
+
+# Ausführliche Kommentare für Vorwärtsdeklarationen
+HIDE_UNDOC_RELATIONS   = NO
+
+# Farbeinstellungen
+# s.a. https://jothepro.github.io/doxygen-awesome-css/md_docs_customization.html
+#HTML_COLORSTYLE_HUE    = 209    # Farbton (0=rot;
+#HTML_COLORSTYLE_SAT    = 100    # Sättigung
+#HTML_COLORSTYLE_GAMMA  = 150    # Gammakorrektur
+
+# Passe die Titelseite an
+#HTML_HEADER            = header.html
+#HTML_FOOTER            = footer.html
+
+# Verhindert die Generierung von Statistiken
+GENERATE_HTMLHELP      = NO
+
+# Sortiert die Mitglieder nach ihren Typen
+SORT_MEMBERS_CTORS_1ST = NO
+
+# Konfiguriert die Anzeige der Vererbungshierarchie
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+
+# Diese Option kann verwendet werden, wenn nur .cpp geparst werden sollen
+# VERBATIM_HEADERS = NO
