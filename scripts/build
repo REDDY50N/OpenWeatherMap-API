@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -euo pipefail
+
+help()
+{
+cat << EOM
+Builds the OWM application.
+
+Usage:
+  ./build [--debug] [cmake args]
+
+Options:
+  -h, --help    Show this help message.
+  --debug       Create a debug build.
+  --release     Create a release build. (default)
+  [cmake args]  Any other arguments to pass to cmake.
+EOM
+}
+
+build_type="Release"
+
+while [[ $# -gt 0 ]]; do
+    argument="$1"
+
+    case $argument in
+        -h | --help)
+            help
+            exit 0
+        ;;
+
+        --debug)
+            build_type="Debug"
+            shift
+        ;;
+
+        --release)
+            build_type="Release"
+            shift
+        ;;
+
+        *)
+            break
+        ;;
+    esac
+done
+
+readonly REPOSITORY_ROOT=$(git rev-parse --show-toplevel)
+readonly BUILD_PATH=$REPOSITORY_ROOT/build-${build_type,,}
+
+mkdir -p $BUILD_PATH
+cd $BUILD_PATH
+
+cmake -DCMAKE_BUILD_TYPE=$build_type -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "$@" $REPOSITORY_ROOT
+cmake --build . --target all -j$(nproc)
