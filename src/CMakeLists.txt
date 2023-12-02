@@ -9,3 +9,5 @@ target_sources(${EXEC_NAME} PRIVATE
         #HttpRequest.cpp
         #HttpRequest.h
 )
+
+add_subdirectory(ui)

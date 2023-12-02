@@ -7,15 +7,17 @@
 
 // API
 #include "weatherapi.h"
-
-
-
+#include "SysTray.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    //QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName("OpenWheaterMap-API-Test");
     QCoreApplication::setApplicationVersion("1.0.0");
+
+    SysTray app(argc, argv);
+    app.runLoop();
+
 
     WeatherAPI w;
     QString city = "Neu-Isenburg";
