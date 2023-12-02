@@ -2,6 +2,7 @@
 
 // Qt
 #include <QTypeInfo>
+#include <QProcessEnvironment>
 
 // Network
 #include <QtNetwork/QNetworkReply>
@@ -50,8 +51,8 @@ QString WeatherAPI::loadApiKey()
     // Note:
     // read api-key from textfile in bin/ (where the executeable is located)
     // cuz we don't have QSettings implemented yet
+    /*
     QString filepath = QDir::currentPath().append("/apikey.txt");
-
     QFile file( filepath );
     qDebug() << filepath;
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -62,6 +63,18 @@ QString WeatherAPI::loadApiKey()
         apikey = file.readLine().data();
         qDebug() << "API-Key:" << apikey.simplified();
     }
+    m_apiKey = QString( apikey.simplified() );
+    */
+
+    QString apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
+    if (!apiKey.isEmpty()) {
+        qDebug() << "API_KEY gefunden:" << apiKey;
+        // Hier kannst du den API_KEY in deiner Anwendung verwenden
+    } else {
+        qDebug() << "API_KEY nicht gefunden.";
+        // Behandle den Fall, wenn der API_KEY nicht vorhanden ist
+    }
+
     m_apiKey = QString( apikey.simplified() );
 
 return apikey;
@@ -278,11 +291,15 @@ int WeatherAPI::getSunriseTime(QString city, QString country_code)
     return m_sunrise;
 }
 
-double WeatherAPI::getWeatherStatus(QString city, QString country_code)
-{    QByteArray data = getWeatherData( city, country_code );
-     m_status = analyzeData( data, "weather", "main" );
-     qDebug() << "Status: " << m_status << QString(u8"\u2614") << QString(u8"\u2601") << QString(u8"\u2600") << QChar(0x4FF0) << "🌑" << "";
-     return m_status;
+double WeatherAPI::getWeatherStatus(QString city, QString country_code) {
+  QByteArray data = getWeatherData( city, country_code );
+  m_status = analyzeData( data, "weather", "main" );
+  //qDebug() << "Status: " << m_status << QString(u8"\u2614") << QString(u8"\u2601") << QString(u8"\u2600") << QChar(0x4FF0) << "🌑" << "";
+  qDebug() << "Status:" << m_status
+           << QString::fromUtf8("\u2614") << QString::fromUtf8("\u2601") << QString::fromUtf8("\u2600")
+           << QChar(0x4FF0) << "🌑" << "";
+
+    return m_status;
 
      // https://unicode-table.com/en/emoji/travel-and-places/sky-and-weather/
 }

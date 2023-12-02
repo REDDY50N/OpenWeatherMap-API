@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QCommandLineParser>
+#include <QProcessEnvironment>
 #include <memory>
 
 // API
@@ -36,5 +37,16 @@ int main(int argc, char *argv[])
     w.getCoordLong( city, country_code );
     w.printJsonDataOneCall("50.05", "8.69");
 
-    return app.exec();
+
+    QString apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
+
+    if (!apiKey.isEmpty()) {
+        qDebug() << "API_KEY gefunden:" << apiKey;
+        // Hier kannst du den API_KEY in deiner Anwendung verwenden
+    } else {
+        qDebug() << "API_KEY nicht gefunden.";
+        // Behandle den Fall, wenn der API_KEY nicht vorhanden ist
+    }
+
+    return QCoreApplication::exec();
 }
