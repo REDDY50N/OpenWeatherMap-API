@@ -18,3 +18,24 @@ change `VERSION` file
 ## Dependencies
 Qt 5.15.15
 `<sudo apt install mesa-common-dev libglu1-mesa-dev`
+
+
+
+## Troubleshooting
+
+### SSL Error
+
+```
+qt.network.ssl: Incompatible version of OpenSSL (built with OpenSSL 1.x, runtime version is >= 3.x)
+qt.network.ssl: QSslSocket::connectToHostEncrypted: TLS initialization failed
+Reply failed:  "TLS initialization failed"
+```
+
+1. Install OpenSSL 1 and 3 via Qt Maintenenace Tool
+2. Switch into Qt dir `~/Qt/Tools/OpenSSL/src`
+3. Build and install:
+    ```shell
+    ./config
+    make -j4
+    sudo make install
+    ```
