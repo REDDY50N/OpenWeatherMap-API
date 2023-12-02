@@ -6,4 +6,6 @@ target_sources(${EXEC_NAME} PRIVATE
         ./weatherapi.cpp
         #./ApiKeyManager.cpp
         #./ApiKeyManager.h
+        #HttpRequest.cpp
+        #HttpRequest.h
 )
