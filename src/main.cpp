@@ -9,6 +9,57 @@
 #include "weatherapi.h"
 #include "SysTray.h"
 
+#include <QApplication>
+
+#ifndef QT_NO_SYSTEMTRAYICON
+
+#include <QMessageBox>
+#include "ExperimentalSysTray.h"
+
+int main(int argc, char *argv[])
+{
+    Q_INIT_RESOURCE(systray);
+
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    QApplication app(argc, argv);
+
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        QMessageBox::critical(nullptr, QObject::tr("Systray"),
+                              QObject::tr("I couldn't detect any system tray "
+                                          "on this system."));
+        return 1;
+    }
+    QApplication::setQuitOnLastWindowClosed(false);
+
+    ExperimentalSysTray window;
+    window.show();
+    return app.exec();
+}
+
+#else
+
+#include <QLabel>
+#include <QDebug>
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    QString text("QSystemTrayIcon is not supported on this platform");
+
+    QLabel *label = new QLabel(text);
+    label->setWordWrap(true);
+
+    label->show();
+    qDebug() << text;
+
+    app.exec();
+}
+
+#endif
+
+
+/*
 int main(int argc, char *argv[])
 {
     //QCoreApplication app(argc, argv);
@@ -18,37 +69,6 @@ int main(int argc, char *argv[])
     SysTray app(argc, argv);
     app.runLoop();
 
-
-    WeatherAPI w;
-    QString city = "Neu-Isenburg";
-    QString country_code = "DE";
-
-    w.getTemperature( city, country_code );
-    w.getTempMin( city, country_code );
-    w.getTempMax( city, country_code );
-    w.getFeelsLike( city, country_code );
-    w.getHumidity( city, country_code );
-    w.getWindSpeed(city, country_code);
-    w.getWindDeg( city, country_code );
-    w.getWeatherStatus( city, country_code );
-    w.getCloudCoverage( city, country_code );
-
-    w.getSunriseTime( city, country_code );
-    w.getPressure( city, country_code );
-
-    w.getCoordLong( city, country_code );
-    w.printJsonDataOneCall("50.05", "8.69");
-
-
-    QString apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
-
-    if (!apiKey.isEmpty()) {
-        qDebug() << "API_KEY gefunden:" << apiKey;
-        // Hier kannst du den API_KEY in deiner Anwendung verwenden
-    } else {
-        qDebug() << "API_KEY nicht gefunden.";
-        // Behandle den Fall, wenn der API_KEY nicht vorhanden ist
-    }
-
     return QCoreApplication::exec();
 }
+*/
