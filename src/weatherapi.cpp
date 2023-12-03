@@ -23,7 +23,7 @@
 #include <QDir>
 
 #include <QObject>
-
+#include <QSettings>
 
 
 // ==============================================
@@ -66,18 +66,39 @@ QString WeatherAPI::loadApiKey()
     m_apiKey = QString( apikey.simplified() );
     */
 
-    QString apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
-    if (!apiKey.isEmpty()) {
-        qDebug() << "API_KEY gefunden:" << apiKey;
+    m_apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
+
+    if (m_apiKey.isEmpty()) {
+        // API_KEY nicht in Umgebungsvariablen gefunden, versuche es in QSettings
+        QSettings settings("MyCompany", "MyApp"); // Hier sollte "MyCompany" durch den Namen Ihres Unternehmens und "MyApp" durch den Namen Ihrer Anwendung ersetzt werden
+
+        // Lese den API-Key aus den QSettings
+        m_apiKey = settings.value("api_key").toString();
+
+        if (m_apiKey.isEmpty()) {
+            qDebug() << "API_KEY nicht in Umgebungsvariablen oder QSettings gefunden.";
+            // Behandle den Fall, wenn der API_KEY nicht vorhanden ist
+            // Hier können Sie beispielsweise eine Benutzeroberfläche öffnen, um den API-Key einzugeben und zu speichern
+        } else {
+            qDebug() << "API_KEY aus QSettings gefunden:" << m_apiKey;
+            // Hier kannst du den API_KEY in deiner Anwendung verwenden
+        }
+    } else {
+        qDebug() << "API_KEY aus Umgebungsvariablen gefunden:" << m_apiKey;
+        // Hier kannst du den API_KEY in deiner Anwendung verwenden
+    }
+
+
+    m_apiKey = QProcessEnvironment::systemEnvironment().value("OWM_API_KEY");
+    if (!m_apiKey.isEmpty()) {
+        qDebug() << "API_KEY gefunden:" << m_apiKey;
         // Hier kannst du den API_KEY in deiner Anwendung verwenden
     } else {
         qDebug() << "API_KEY nicht gefunden.";
         // Behandle den Fall, wenn der API_KEY nicht vorhanden ist
     }
 
-    m_apiKey = QString( apikey.simplified() );
-
-return apikey;
+    return m_apiKey;
 }
 
 // ==============================================
@@ -88,6 +109,37 @@ return apikey;
  *      http://api.openweathermap.org/data/2.5/weather?q=Neu-Isenburg,DE&APPID=<api-key>&lang=german
  *      @param: city + city_code i.e. "Neu-Isenburg","DE"
  */
+QByteArray WeatherAPI::getWeatherData(QString city, QString country_code)
+{
+    QNetworkRequest request(m_currentWeatherDataByCoord);
+    qDebug() << "URL:" << m_currentWeatherDataByCoord;
+
+    QByteArray data;
+    QEventLoop eventLoop;
+    QNetworkAccessManager qnam;
+
+    QObject::connect(&qnam, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+    QNetworkReply* reply = qnam.get(request);
+    eventLoop.exec();
+
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        data = reply->readAll();
+        reply->deleteLater();
+    }
+    else
+    {
+        qDebug() << "Reply failed. Error code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "Error description: " << reply->errorString();
+
+        delete reply;
+    }
+
+    return data;
+}
+
+/*
+
 QByteArray WeatherAPI::getWeatherData( QString city, QString country_code )
 {
     QUrl weatherCall = QUrl( "http://api.openweathermap.org/data/2.5/weather?q="+city+","+country_code+"&APPID="+m_apiKey+"&lang="+m_language+"&units="+m_units );
@@ -114,6 +166,7 @@ QByteArray WeatherAPI::getWeatherData( QString city, QString country_code )
 
     return data;
 }
+*/
 
 /*
  *      Get whole data in one call (incl. forecast) with Latitude & Longitude
@@ -148,11 +201,22 @@ QString WeatherAPI::getOneCallData( QString latitude, QString longitude )
 // ==============================================
 // DEBUG PRINTS
 // ==============================================
+/*!
+ *
+ * @param city
+ * @param country_code
+ * Complete JSON data (weather): "{\"coord\":{\"lon\":50.0522,\"lat\":8.6953},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04d\"}],\"base\":\"stations\",\"main\":{\"temp\":301.4,\"feels_like\":300.59,\"temp_min\":301.4,\"temp_max\":301.4,\"pressure\":1014,\"humidity\":33,\"sea_level\":1014,\"grnd_level\":974},\"visibility\":10000,\"wind\":{\"speed\":9.79,\"deg\":28,\"gust\":10.45},\"clouds\":{\"all\":92},\"dt\":1701591756,\"sys\":{\"country\":\"SO\",\"sunrise\":1701571208,\"sunset\":1701613140},\"timezone\":10800,\"id\":60019,\"name\":\"Eyl\",\"cod\":200}"
+ */
 void  WeatherAPI::printJsonDataWeather( QString city, QString country_code )
 {
     qDebug() << "Complete JSON data (weather):" << getWeatherData( city, country_code );
 }
 
+/*!
+ *
+ * @param latitude
+ * @param longitude
+ */
 void WeatherAPI::printJsonDataOneCall( QString latitude, QString longitude )
 {
     qDebug() << "Complete JSON data (OneCall):" << getOneCallData( latitude, longitude );
@@ -309,6 +373,10 @@ int WeatherAPI::getCloudCoverage(QString city, QString country_code)
      m_clouds = analyzeData( data, "clouds", "all" );
      qDebug() << "Clouds: " << m_clouds << "%";
      return m_clouds;
+}
+
+void WeatherAPI::printApiKey() {
+    qDebug() << "API Key:" << m_apiKey;
 }
 
 
