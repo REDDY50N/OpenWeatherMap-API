@@ -10,6 +10,7 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QDialog>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -24,6 +25,19 @@ class QSpinBox;
 class QTextEdit;
 QT_END_NAMESPACE
 
+#include "SettingsWidget.h"
+
+enum class WeatherStatus {
+    sunny,
+    rainy
+};
+
+enum class SysTrayTag {
+    Settings,
+    LoadDataBase,
+};
+
+
 class ExperimentalSysTray : public QDialog {
     Q_OBJECT
 
@@ -32,8 +46,28 @@ public:
 
     void setVisible(bool visible) override;
 
+    //connect(this, SIGNAL(weatherChanged(WeatherStatus)), this, SLOT(updateTemperatureToolTip));
+
+
 protected:
     void closeEvent(QCloseEvent *event) override;
+
+
+signals:
+    void weatherChanged(WeatherStatus newStatus); // if weather status changed; change icon
+
+
+public slots:
+
+    /// just for testing (just show a Message Box)
+    void showSettingsTest() {
+        QMessageBox::information(nullptr, "Info", "TODO: Einstellungen anzeigen");
+    }
+
+    void showSettings() {
+        settingsWidget->show();
+    }
+
 
 private slots:
     void setIcon(int index);
@@ -41,17 +75,32 @@ private slots:
     void showMessage();
     void messageClicked();
 
+    // add owm fuctionality
+    void updateWeatherAndTemperature();
+    void updateWeatherIcon();
+    void updateTemperatureToolTip();
+    void setWeatherIcon(WeatherStatus status);
+
+
 private:
+
+    // TabBar
+    void createTabBar();
+    QTabWidget *tabWidget;
+
+    /// create functions for SysTray
     void createIconGroupBox();
     void createMessageGroupBox();
     void createActions();
     void createTrayIcon();
 
+    /// create widgets for SysTray
     QGroupBox *iconGroupBox;
     QLabel *iconLabel;
     QComboBox *iconComboBox;
     QCheckBox *showIconCheckBox;
 
+    /// create message box for SysTray
     QGroupBox *messageGroupBox;
     QLabel *typeLabel;
     QLabel *durationLabel;
@@ -64,15 +113,21 @@ private:
     QTextEdit *bodyEdit;
     QPushButton *showMessageButton;
 
+    /// create actions for SysTray
+    QAction *settingsAction;
+    QAction *loadDataBaseAction;
     QAction *minimizeAction;
     QAction *maximizeAction;
     QAction *restoreAction;
     QAction *quitAction;
 
+    /// create icon and menu for SysTray
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
+
+    /// Settings Widgets (Testing: Just show a message dialog now)
+    SettingsWidget* settingsWidget;
 };
-//! [0]
 
 #endif // QT_NO_SYSTEMTRAYICON
 

@@ -19,8 +19,9 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QDebug>
 
-//! [0]
+
 ExperimentalSysTray::ExperimentalSysTray()
 {
     createIconGroupBox();
@@ -29,7 +30,10 @@ ExperimentalSysTray::ExperimentalSysTray()
     iconLabel->setMinimumWidth(durationLabel->sizeHint().width());
 
     createActions();
+
     createTrayIcon();
+
+    createTabBar();
 
     connect(showMessageButton, &QAbstractButton::clicked, this, &ExperimentalSysTray::showMessage);
     connect(showIconCheckBox, &QAbstractButton::toggled, trayIcon, &QSystemTrayIcon::setVisible);
@@ -46,8 +50,8 @@ ExperimentalSysTray::ExperimentalSysTray()
     iconComboBox->setCurrentIndex(1);
     trayIcon->show();
 
-    setWindowTitle(tr("Systray"));
-    resize(400, 300);
+    setWindowTitle(tr("Open Weather Map"));
+    resize(600, 480);
 }
 //! [0]
 
@@ -138,14 +142,15 @@ void ExperimentalSysTray::messageClicked()
 
 void ExperimentalSysTray::createIconGroupBox()
 {
-    iconGroupBox = new QGroupBox(tr("Tray Icon"));
+    iconGroupBox = new QGroupBox(tr("Weather  createIconGroupBox"));
 
     iconLabel = new QLabel("Icon:");
 
     iconComboBox = new QComboBox;
-    iconComboBox->addItem(QIcon(":/images/bad.png"), tr("Bad"));
     iconComboBox->addItem(QIcon(":/images/heart.png"), tr("Heart"));
-    iconComboBox->addItem(QIcon(":/images/trash.png"), tr("Trash"));
+
+    iconComboBox->addItem(QIcon(":/icons/rain.svg"), tr("Rainy"));
+    iconComboBox->addItem(QIcon(":/icons/sunny.svg"), tr("Sunny"));
 
     showIconCheckBox = new QCheckBox(tr("Show icon"));
     showIconCheckBox->setChecked(true);
@@ -219,8 +224,16 @@ void ExperimentalSysTray::createMessageGroupBox()
     messageGroupBox->setLayout(messageLayout);
 }
 
+/// create Action and Signal/Slot connection
 void ExperimentalSysTray::createActions()
 {
+    settingsAction = new QAction("Settings", this);
+    //connect(settingsAction, &QAction::triggered, this, SLOT(showSettings()) ); ///  TODO: show settings window / tab
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(showSettings()));
+
+    loadDataBaseAction = new QAction(tr("Data"), this);
+    connect(loadDataBaseAction, &QAction::triggered, this, &QWidget::hide);
+
     minimizeAction = new QAction(tr("Mi&nimize"), this);
     connect(minimizeAction, &QAction::triggered, this, &QWidget::hide);
 
@@ -234,9 +247,13 @@ void ExperimentalSysTray::createActions()
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
 
+/// Create Actions for the SysTray (Right Click)
 void ExperimentalSysTray::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
+
+    trayIconMenu->addAction(settingsAction);
+    trayIconMenu->addAction(loadDataBaseAction);
     trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(maximizeAction);
     trayIconMenu->addAction(restoreAction);
@@ -245,6 +262,88 @@ void ExperimentalSysTray::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
+}
+
+void ExperimentalSysTray::updateTemperatureToolTip() {
+    double temp = 20.4;
+}
+
+void ExperimentalSysTray::updateWeatherIcon() {
+
+    enum class weather_status {
+        sunny,
+        rainy
+    };
+
+    weather_status current_weather = weather_status::sunny;
+
+    switch (current_weather) {
+        case weather_status::sunny:
+            qDebug() << "Sunny";
+            break;
+        case weather_status::rainy:
+            qDebug() << "Sunny";
+            break;
+        default:
+            qDebug() << "unkown";
+            break;
+    }
+}
+
+void ExperimentalSysTray::setWeatherIcon(WeatherStatus status) {
+
+    QIcon icon;
+    switch (status) {
+        case WeatherStatus::sunny:
+            icon.addFile(":/icons/rain.svg"); // Pfade entsprechend anpassen
+            break;
+        case WeatherStatus::rainy:
+            icon.addFile(":/icons/rain.svg");
+            break;
+            // Weitere Wetterzustände hinzufügen, falls benötigt
+        default:
+            icon.addFile(":/icons/sunny.svg"); // Standard-Icon
+            break;
+    }
+    trayIcon->setIcon(icon);
+
+}
+
+//========================================
+// WEATHER TEMP DISPLAY ()
+//========================================
+void ExperimentalSysTray::updateWeatherAndTemperature() {
+    updateTemperatureToolTip();
+    updateWeatherIcon();
+}
+
+
+//========================================
+// TAB-BAR
+//========================================
+void ExperimentalSysTray::createTabBar() {
+// Erstelle eine TabBar und füge Tabs hinzu
+    tabWidget = new QTabWidget(this);
+
+    QWidget* tabDashboard = new QWidget();
+    tabDashboard->setLayout(new QVBoxLayout());
+    tabDashboard->layout()->addWidget(new QLabel("Dashboard Tab Content"));
+    tabWidget->addTab(tabDashboard, "Dashboard");
+
+    QWidget* tabDataBase = new QWidget();
+    tabDataBase->setLayout(new QVBoxLayout());
+    tabDataBase->layout()->addWidget(new QLabel("Dashboard Tab Content"));
+    tabWidget->addTab(tabDataBase, "Dashboard");
+
+    QWidget* tabSettings = new QWidget();
+    tabSettings->setLayout(new QVBoxLayout());
+    tabSettings->layout()->addWidget(new QLabel("Settings Tab Content"));
+    tabWidget->addTab(tabSettings, "Settings");
+
+    // Füge die TabBar zum Layout hinzu
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(tabWidget);
+    setLayout(mainLayout);
 }
 
 #endif
