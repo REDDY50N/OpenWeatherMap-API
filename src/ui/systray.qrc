@@ -3,5 +3,9 @@
    <file>images/bad.png</file>
    <file>images/heart.png</file>
    <file>images/trash.png</file>
+   <file>icons/heavy_rain.svg</file>
+   <file>icons/overcast.svg</file>
+   <file>icons/rain.svg</file>
+   <file>icons/sunny.svg</file>
 </qresource>
 </RCC>
