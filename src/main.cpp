@@ -15,6 +15,7 @@
 
 #include <QMessageBox>
 #include "ExperimentalSysTray.h"
+#include "weatherapi.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,15 +26,20 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        QMessageBox::critical(nullptr, QObject::tr("Systray"),
+        QMessageBox::critical(nullptr, QObject::tr("Warning"),
                               QObject::tr("I couldn't detect any system tray "
                                           "on this system."));
         return 1;
     }
     QApplication::setQuitOnLastWindowClosed(false);
 
-    ExperimentalSysTray window;
-    window.show();
+    WeatherAPI owm;
+    owm.printApiKey();
+    owm.printJsonDataWeather("Feankfurt", "DE");
+
+
+    ExperimentalSysTray test_tray;
+    test_tray.show();
     return app.exec();
 }
 
